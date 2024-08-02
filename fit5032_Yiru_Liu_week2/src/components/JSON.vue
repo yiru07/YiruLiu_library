@@ -59,22 +59,22 @@
         Company:
         <!-- Activity 9a: Get the company name from the bookstores object. -->
         <!-- TODO: CODE TO GET COMPANY NAME HERE -->
-        <ul>
-          <li>  
-            {{ bookstoreName }}
-          </li>
-        </ul>
+      <ul>
+        <li>
+          {{ bookstoreName }}
+        </li>
+      </ul>
       </p>
 
       <p>
         Total Stores:
         <!-- Activity 9b: Get the total number of stores from the bookstores object. -->
         <!-- TODO: CODE TO GET TOTAL STORES HERE -->
-        <ul>
-          <li>  
-            {{ totalBookStoreNum }}
-          </li>
-        </ul>
+      <ul>
+        <li>
+          {{ totalBookStoreNum }}
+        </li>
+      </ul>
       </p>
 
       <h3>Iterating Object Properties</h3>
@@ -84,42 +84,42 @@
       <!-- Activity 10: Iterate through the storeTypes array and display the store type and the number of stores that use that type. -->
       <!-- TODO: CODE TO RENDER LIST OF STORE TYPES HERE -->
       <p>
-        <ul>
-          <li v-for="(num, type) in bookstores.storeTypes" :key="type">
-            {{ type }}: {{ num }} 
-          </li>
-        </ul>
+      <ul>
+        <li v-for="(num, type) in bookstores.storeTypes" :key="type">
+          {{ type }}: {{ num }}
+        </li>
+      </ul>
       </p>
-      
+
 
       <h3>Nested Objects</h3>
       <p>Opening Hours:</p>
       <!-- Activity 11: Iterate through the openingHours object and display the day of the week and the opening and closing times. -->
       <!-- TODO: CODE TO RENDER LIST OF OPENING HOURS HERE -->
-       <p>
-        <ul>
-          <li v-for="(times, day) in bookstores.openingHours" :key="day">
-            {{ day.charAt(0).toUpperCase() + day.slice(1) }}: {{ times.open }} - {{ times.close }}
-          </li>
-        </ul>
-       </p>
+      <p>
+      <ul>
+        <li v-for="(times, day) in bookstores.openingHours" :key="day">
+          {{ day.charAt(0).toUpperCase() + day.slice(1) }}: {{ times.open }} - {{ times.close }}
+        </li>
+      </ul>
+      </p>
 
-       
+
       <h3>Working with Arrays in Objects</h3>
       <!-- Activity 12: Get the top sellers from the bookstores object. -->
       <!-- TODO: CODE TO GET TOP SELLERS HERE -->
       <p>We operate in:
-        <ul>
-          <li v-for = "country in bookstores.countries" :key = "country">
-            {{ country }}
-          </li>
-        </ul>
+      <ul>
+        <li v-for="country in bookstores.countries" :key="country">
+          {{ country }}
+        </li>
+      </ul>
       </p>
-      
+
       <p>Our #1 seller:
-        <ul>
-          <li>{{ bookstores.topSellers[0] }}</li>
-        </ul>
+      <ul>
+        <li>{{ bookstores.topSellers[0] }}</li>
+      </ul>
       </p>
 
 
@@ -144,6 +144,14 @@
     <section class="lab-section">
       <h2>Attribute, Class and Style Binding with <code>v-bind</code></h2>
       <p>Highlighting Specific Authors:</p>
+
+      <ul>
+        <li v-for="(author_info, index) in authors" :key="author_info.id"
+          :class="{ highlight: author_info.name === 'George Orwell' }">
+          {{ author_info.name }}
+        </li>
+      </ul>
+
     </section>
   </div>
 </template>
@@ -158,6 +166,8 @@ import authors from '../assets/json/authors.json'
 import bookstores from '../assets/json/bookstores.json'
 
 const showMessage = ref(false)
+
+const textColor = ref('green')
 
 // Activity 2: Get authors born after 1850
 const modernAuthors = computed(() => {
