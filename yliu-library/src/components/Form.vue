@@ -28,12 +28,20 @@
   <div class="container mt-5">
     <div class="row">
       <div class="col-md-8 offset-md-2">
-        <h1 class="test-center">User Information Form</h1>
+        <h1 class="text-center">User Information Form</h1>
         <form @submit.prevent="submitForm">
           <div class="row mb-3">
             <div class="col-md-6 col-sm-6">
               <label for="username" class="form-label">Username</label>
-              <input type="text" class="form-control" id="username" v-model="FormData.username" />
+              <input
+                type="text"
+                class="form-control"
+                id="username"
+                @blur="() => validateName(true)"
+                @input="() => validateName(false)"
+                v-model="FormData.username"
+              />
+              <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
             </div>
             <div class="col-md-6 col-sm-6">
               <label for="password" class="form-label">Password</label>
@@ -41,12 +49,15 @@
                 type="password"
                 class="form-control"
                 id="password"
+                @blur="() => validatePassword(true)"
+                @input="() => validatePassword(false)"
                 v-model="FormData.password"
               />
+              <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
             </div>
           </div>
           <div class="row mb-3">
-            <div class="col-md-6">
+            <div class="col-md-6 col-sm-6">
               <div class="form-check">
                 <input
                   type="checkbox"
@@ -57,13 +68,20 @@
                 <label class="form-check-label" for="isAustralian">Australian Resident? </label>
               </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 col-sm-6">
               <label for="gender" class="form-label">Gender</label>
-              <select class="form-select" id="gender" v-model="FormData.gender">
+              <select
+                class="form-select"
+                id="gender"
+                @blur="() => validateGender(true)"
+                @change="() => validateGender(false)"
+                v-model="FormData.gender"
+              >
                 <option value="male">Male</option>
                 <option value="female">Female</option>
                 <option value="other">Other</option>
               </select>
+              <div v-if="errors.gender" class="text-danger">{{ errors.gender }}</div>
             </div>
           </div>
           <div class="mb-3">
@@ -72,15 +90,18 @@
               class="form-control"
               id="reason"
               rows="3"
+              @blur="() => validateReason(true)"
+              @input="() => validateReason(false)"
               v-model="FormData.reason"
             ></textarea>
+            <div v-if="errors.reason" class="text-danger">{{ errors.reason }}</div>
           </div>
           <div class="text-center">
             <button type="submit" class="btn btn-primary me-2">Submit</button>
             <button type="button" class="btn btn-secondary" @click="clearForm">Clear</button>
           </div>
         </form>
-        <div class="row mt-5" v-if="submittedCards.length">
+        <!-- <div class="row mt-5" v-if="submittedCards.length">
           <div class="d-flex justify-content-start">
             <div
               v-for="(card, index) in submittedCards"
@@ -100,6 +121,26 @@
               </ul>
             </div>
           </div>
+        </div> -->
+        <div class="card mt-5">
+          <DataTable
+            :value="submittedCards"
+            paginator
+            :rows="5"
+            :rowsPerPageOptions="[5, 10, 20, 50]"
+            tableStyle="min-width: 50rem"
+          >
+            <Column field="username" header="Username" style="width: 20%"></Column>
+            <Column field="password" header="Password" style="width: 20%"></Column>
+            <Column
+              field="isAustralian"
+              header="Australian Resident"
+              :body="isAustralianBodyTemplate"
+              style="width: 20%"
+            ></Column>
+            <Column field="gender" header="Gender" style="width: 20%"></Column>
+            <Column field="reason" header="Reason" style="width: 20%"></Column>
+          </DataTable>
         </div>
       </div>
     </div>
@@ -108,6 +149,8 @@
 
 <script setup>
 import { ref } from 'vue'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
 
 const FormData = ref({
   username: '',
@@ -120,19 +163,81 @@ const FormData = ref({
 const submittedCards = ref([])
 
 const submitForm = () => {
-  submittedCards.value.push({
-    ...FormData.value
-  })
-
-  clearForm()
+  validateName(true)
+  if (
+    !errors.value.username &&
+    !errors.value.password &&
+    !errors.value.gender &&
+    !errors.value.reason
+  ) {
+    submittedCards.value.push({ ...FormData.value })
+    clearForm()
+  }
 }
 
 const clearForm = () => {
-  FormData.value.username = ''
-  FormData.value.password = ''
-  FormData.value.isAustralian = false
-  FormData.value.reason = ''
-  FormData.value.gender = ''
+  FormData.value = {
+    username: '',
+    password: '',
+    isAustralian: false,
+    reason: '',
+    gender: ''
+  }
+}
+
+const errors = ref({
+  username: null,
+  password: null,
+  resident: null,
+  reason: null,
+  gender: null
+})
+
+const validateName = (blur) => {
+  if (FormData.value.username.length < 3) {
+    if (blur) errors.value.username = 'Name must be at least 3 characters'
+  } else {
+    errors.value.username = null
+  }
+}
+
+const validatePassword = (blur) => {
+  const password = FormData.value.password
+  const minLength = 8
+  const hasUpperCase = /[A-Z]/.test(password)
+  const hasLowerCase = /[a-z]/.test(password)
+  const hasNumber = /\d/.test(password)
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+
+  if (password.length < minLength) {
+    if (blur) errors.value.password = `Password must be at least ${minLength} characters long.`
+  } else if (!hasUpperCase) {
+    if (blur) errors.value.password = 'Password must contain at least one uppercase letter.'
+  } else if (!hasLowerCase) {
+    if (blur) errors.value.password = 'Password must contain at least one lowercase letter.'
+  } else if (!hasNumber) {
+    if (blur) errors.value.password = 'Password must contain at least one number.'
+  } else if (!hasSpecialChar) {
+    if (blur) errors.value.password = 'Password must contain at least one special character.'
+  } else {
+    errors.value.password = null
+  }
+}
+
+const validateGender = (blur) => {
+  if (!FormData.value.gender) {
+    if (blur) errors.value.gender = 'Please select your gender'
+  } else {
+    errors.value.gender = null
+  }
+}
+
+const validateReason = (blur) => {
+  if (FormData.value.reason.length > 500) {
+    if (blur) errors.value.reason = 'Reason must be less than 500 characters'
+  } else {
+    errors.value.reason = null
+  }
 }
 </script>
 
