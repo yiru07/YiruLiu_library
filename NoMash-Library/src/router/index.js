@@ -1,11 +1,31 @@
-// router/index.js 或你的路由配置文件
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
 import AboutView from '../views/AboutView.vue';
 import LoginView from '../views/LoginView.vue';
 import { Alert } from 'bootstrap';
+import FirebaseSigninView from '@/views/FirebaseSigninView.vue';
+import FirebaseRegisterView from '@/views/FirebaseRegisterView.vue';
+import AdminView from '@/views/AdminView.vue';
+import { getAuth } from 'firebase/auth';
+import AddBookView from '../views/AddBookView.vue';
 
 const routes = [
+  {
+    path: '/addbook',
+    name: 'AddBook',
+    component: AddBookView
+  },
+  {
+    path: '/FireLogin',
+    name: 'FireLogin',
+    component: FirebaseSigninView
+  },
+  {
+    
+    path: '/FireSignup',
+    name: 'FireSignup',
+    component: FirebaseRegisterView
+  },
   {
     path: '/',
     name: 'Home',
@@ -21,6 +41,12 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: LoginView
+  },
+  {
+    path: '/admin-dashboard',
+    name: 'Admin-dashboard',
+    component: AdminView,
+    meta: { requiresAuth: true }
   }
 ];
 
@@ -31,11 +57,11 @@ const router = createRouter({
 
 
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  const isAuthenticated = getAuth().currentUser !== null;
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!isAuthenticated) {
       window.alert("Please login first")
-      next({ name: 'Login' });
+      next('/FireLogin');
     } else {
       next();
     }
@@ -45,3 +71,4 @@ router.beforeEach((to, from, next) => {
 });
 
 export default router;
+

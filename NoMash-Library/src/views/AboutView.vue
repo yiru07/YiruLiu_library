@@ -20,7 +20,5 @@ const logout = () => {
 </script>
 
 <style>
- /* .about{
-    text-align: center;
- } */
+/*  */
 </style>

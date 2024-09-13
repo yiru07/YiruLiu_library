@@ -6,50 +6,53 @@
     <li class="nav-item">
       <router-link to="/about" class="nav-link" active-class="active">About</router-link>
     </li>
-    <li class="nav-item" v-if="showLoginLink">
+    <!-- <li class="nav-item" v-if="showLoginLink">
       <router-link to="/login" class="nav-link" active-class="active">Login</router-link>
-    </li>
-    <li class="nav-item" v-else-if="isAuthenticated && route.path !== '/login'">
+    </li> -->
+    <!-- <li class="nav-item" v-else-if="isAuthenticated && route.path !== '/login'">
       <a @click="logout" class="nav-link" href="#">Logout</a>
+    </li> -->
+    <li class="nav-item" v-if="!isLoggedIn">
+      <router-link to="/Firelogin" class="nav-link" active-class="active">Firebase Login</router-link>
+    </li>
+    <li class="nav-item" v-if="!isLoggedIn">
+      <router-link to="/FireSignup" class="nav-link" active-class="active">Firebase Signup</router-link>
+    </li>
+    <li class="nav-item" v-if="isLoggedIn">
+      <router-link to="/login" class="nav-link" active-class="active" @click="logout">Logout</router-link>
+    </li>
+    <li class="nav-item">
+      <router-link to="/addbook" class="nav-link" active-class="active" >Add Book</router-link>
     </li>
   </ul>
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, onMounted } from "vue";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";  
+import router from "@/router";
 
-const useAuth = () => {
-  const isAuthenticated = ref(localStorage.getItem('isAuthenticated') === 'true');
+const auth = getAuth();
+const isLoggedIn = ref(false);  
 
-  const updateAuthStatus = () => {
-    isAuthenticated.value = localStorage.getItem('isAuthenticated') === 'true';
-  };
+onMounted(() => {
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      isLoggedIn.value = true;  
+    } else {
+      isLoggedIn.value = false; 
+    }
+  });
+});
 
 
-  window.addEventListener('storage', updateAuthStatus);
-
-  const logout = () => {
-    localStorage.setItem('isAuthenticated', 'false');
-    updateAuthStatus();
-  };
-
-  return {
-    isAuthenticated,
-    logout
-  };
+const logout = () => {
+  signOut(auth).then(() => {
+    console.log("Log out.");
+    isLoggedIn.value = false;  
+    router.push('/')
+  }).catch((error) => {
+    console.error("Error during sign out:", error);
+  });
 };
-
-const { isAuthenticated, logout } = useAuth();
-
-const route = useRoute();
-
-const showLoginLink = computed(() => {
-  return route.path !== '/login' && !isAuthenticated.value;
-});
-
-
-watch(isAuthenticated, () => {
-  showLoginLink.value = route.path !== '/login' && !isAuthenticated.value;
-});
 </script>

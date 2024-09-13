@@ -99,9 +99,6 @@ const validateReason = (blur) => {
 
 const reasonSuccess = ref(false);
 
-
-
-
 </script>
 
 <template>
